@@ -2,7 +2,7 @@ from database import Database
 
 class RecommendationSystem:
     def __init__(self):
-        self.db = Database("bolt://localhost:7687", "neo4j", "password")
+        self.db = Database("neo4j+s://3bf3ba0e.databases.neo4j.io", "neo4j", "GEv4tDgk-L4mVBd3wkphnNAMMzWp8OsYMnuBM6dm2PQ")
 
     def close(self):
         self.db.close()
@@ -14,7 +14,12 @@ class RecommendationSystem:
         """
         parameters = {"actor_name": actor_name}
         results = self.db.execute_query(query, parameters)
-        return results
+        
+        if not results:
+            return f"Nenhum filme encontrado para o ator: {actor_name}"
+        
+        return [f"Título: {record['title']}, Gênero: {record['genre']}, Diretor: {record['director']}" for record in results]
+
 
     def recommend_by_genre(self, genre):
         query = """

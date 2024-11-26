@@ -1,13 +1,5 @@
 class Movie:
     def __init__(self, title, genre, director, actors):
-        """
-        Inicializa um objeto Movie com os atributos fornecidos.
-        
-        :param title: Título do filme.
-        :param genre: Gênero do filme.
-        :param director: Diretor do filme.
-        :param actors: Lista de atores que participam do filme.
-        """
         self.title = title
         self.genre = genre
         self.director = director

@@ -1,25 +1,52 @@
 from database import Database
+from movie import Movie
+
 
 class MovieCRUD:
     def __init__(self):
+        """
+        Inicializa a conexão com o banco de dados.
+        """
         self.db = Database("neo4j+s://3bf3ba0e.databases.neo4j.io", "neo4j", "GEv4tDgk-L4mVBd3wkphnNAMMzWp8OsYMnuBM6dm2PQ")
 
     def close(self):
+        """
+        Encerra a conexão com o banco de dados.
+        """
         self.db.close()
 
-    def create(self, title, genre, director, actors):
+    def create(self, movie: Movie):
+        """
+        Cria um novo filme no banco de dados.
+
+        :param movie: Objeto da classe Movie contendo os dados do filme.
+        :return: O filme recém-criado.
+        """
         query = """
         CREATE (m:Movie {title: $title, genre: $genre, director: $director})
         WITH m
-        UNWIND $actors AS actor
-        CREATE (a:Actor {name: actor})-[:ACTS_IN]->(m)
+        UNWIND $actors AS actor_name
+        MERGE (a:Actor {name: actor_name})  // Garante que o nó de ator exista
+        MERGE (a)-[:ACTS_IN]->(m)           // Cria o relacionamento entre o ator e o filme
         RETURN m
         """
-        parameters = {"title": title, "genre": genre, "director": director, "actors": actors}
+        parameters = {
+            "title": movie.title,
+            "genre": movie.genre,
+            "director": movie.director,
+            "actors": movie.actors,
+        }
         results = self.db.execute_query(query, parameters)
         return results
 
-    def read(self, title):
+
+    def read(self, title: str) -> Movie:
+        """
+        Lê os detalhes de um filme no banco de dados pelo título.
+
+        :param title: Título do filme a ser buscado.
+        :return: Objeto Movie contendo os dados do filme, ou None se não encontrado.
+        """
         query = """
         MATCH (m:Movie {title: $title})
         OPTIONAL MATCH (m)<-[:ACTS_IN]-(a:Actor)
@@ -27,33 +54,59 @@ class MovieCRUD:
         """
         parameters = {"title": title}
         results = self.db.execute_query(query, parameters)
-        return results
 
-    def update(self, title, new_title=None, new_genre=None, new_director=None, new_actors=None):
+        if results:
+            data = results[0]
+            return Movie(
+                title=data["title"],
+                genre=data["genre"],
+                director=data["director"],
+                actors=data["actors"],
+            )
+        return None
+
+    def update(self, title: str, updated_movie: Movie):
+        """
+        Atualiza os dados de um filme no banco de dados.
+
+        :param title: Título atual do filme.
+        :param updated_movie: Objeto Movie contendo os dados atualizados.
+        :return: O filme atualizado.
+        """
         query = """
         MATCH (m:Movie {title: $title})
-        SET m.title = COALESCE($new_title, m.title)
-        SET m.genre = COALESCE($new_genre, m.genre)
-        SET m.director = COALESCE($new_director, m.director)
+        // Atualiza as propriedades do filme
+        SET m.title = COALESCE($new_title, m.title),
+            m.genre = COALESCE($new_genre, m.genre),
+            m.director = COALESCE($new_director, m.director)
+        // Remove todos os relacionamentos ACTS_IN com atores antigos
         WITH m
-        OPTIONAL MATCH (m)<-[:ACTS_IN]-(a:Actor)
-        DELETE a
+        OPTIONAL MATCH (m)<-[r:ACTS_IN]-(a:Actor)
+        DELETE r
+        // Cria os novos relacionamentos com atores atualizados
         WITH m
-        UNWIND $new_actors AS actor
-        CREATE (a:Actor {name: actor})-[:ACTS_IN]->(m)
+        UNWIND COALESCE($new_actors, []) AS actor_name
+        MERGE (a:Actor {name: actor_name})
+        MERGE (a)-[:ACTS_IN]->(m)
         RETURN m
         """
         parameters = {
             "title": title,
-            "new_title": new_title,
-            "new_genre": new_genre,
-            "new_director": new_director,
-            "new_actors": new_actors
+            "new_title": updated_movie.title,
+            "new_genre": updated_movie.genre,
+            "new_director": updated_movie.director,
+            "new_actors": updated_movie.actors,
         }
         results = self.db.execute_query(query, parameters)
         return results
 
-    def delete(self, title):
+
+    def delete(self, title: str):
+        """
+        Deleta um filme do banco de dados pelo título.
+
+        :param title: Título do filme a ser deletado.
+        """
         query = """
         MATCH (m:Movie {title: $title})
         DETACH DELETE m
