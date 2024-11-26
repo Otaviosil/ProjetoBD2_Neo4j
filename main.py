@@ -1,5 +1,6 @@
 from movie_crud import MovieCRUD
 from recommendation_system import RecommendationSystem
+from movie import Movie
 
 class CLI:
     def __init__(self):

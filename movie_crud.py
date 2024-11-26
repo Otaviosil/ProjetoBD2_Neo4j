@@ -2,7 +2,7 @@ from database import Database
 
 class MovieCRUD:
     def __init__(self):
-        self.db = Database("bolt://54.209.152.201", "neo4j", "ease-art-twenties")
+        self.db = Database("neo4j+s://3bf3ba0e.databases.neo4j.io", "neo4j", "GEv4tDgk-L4mVBd3wkphnNAMMzWp8OsYMnuBM6dm2PQ")
 
     def close(self):
         self.db.close()
