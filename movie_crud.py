@@ -1,13 +1,12 @@
 from database import Database
 from movie import Movie
 
-
 class MovieCRUD:
     def __init__(self):
         """
         Inicializa a conexão com o banco de dados.
         """
-        self.db = Database("neo4j+s://3bf3ba0e.databases.neo4j.io", "neo4j", "GEv4tDgk-L4mVBd3wkphnNAMMzWp8OsYMnuBM6dm2PQ")
+        self.db = Database("neo4j+s://13e81806.databases.neo4j.io", "neo4j", "bssVujeJyyuPUd5GC42_DS9mPYGsimmoPEmRoch1RPw")
 
     def close(self):
         """
@@ -38,7 +37,6 @@ class MovieCRUD:
         }
         results = self.db.execute_query(query, parameters)
         return results
-
 
     def read(self, title: str) -> Movie:
         """
@@ -99,7 +97,6 @@ class MovieCRUD:
         }
         results = self.db.execute_query(query, parameters)
         return results
-
 
     def delete(self, title: str):
         """

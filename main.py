@@ -31,7 +31,10 @@ class CLI:
             elif choice == "2":
                 title = input("Título do Filme: ")
                 result = self.movie_crud.read(title)
-                print(result)
+                if result:
+                    print(result)
+                else:
+                    print("Filme não encontrado.")
 
             elif choice == "3":
                 title = input("Título do Filme: ")
@@ -52,7 +55,6 @@ class CLI:
                 self.movie_crud.update(title, updated_movie)
                 print("Filme atualizado com sucesso!")
 
-
             elif choice == "4":
                 title = input("Título do Filme: ")
                 self.movie_crud.delete(title)
@@ -61,17 +63,29 @@ class CLI:
             elif choice == "5":
                 actor_name = input("Nome do Ator: ")
                 result = self.recommendation_system.recommend_by_actor(actor_name)
-                print(result)
+                if isinstance(result, list):
+                    for recommendation in result:
+                        print(recommendation)
+                else:
+                    print(result)
 
             elif choice == "6":
                 genre = input("Gênero: ")
                 result = self.recommendation_system.recommend_by_genre(genre)
-                print(result)
+                if result:
+                    for record in result:
+                        print(f"Título: {record['title']}, Gênero: {record['genre']}, Diretor: {record['director']}")
+                else:
+                    print(f"Nenhum filme encontrado para o gênero: {genre}")
 
             elif choice == "7":
                 director_name = input("Nome do Diretor: ")
                 result = self.recommendation_system.recommend_by_director(director_name)
-                print(result)
+                if result:
+                    for record in result:
+                        print(f"Título: {record['title']}, Gênero: {record['genre']}, Diretor: {record['director']}")
+                else:
+                    print(f"Nenhum filme encontrado para o diretor: {director_name}")
 
             elif choice == "8":
                 self.movie_crud.close()
