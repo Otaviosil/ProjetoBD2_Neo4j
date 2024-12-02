@@ -37,3 +37,16 @@ class RecommendationSystem:
         parameters = {"director_name": director_name}
         results = self.db.execute_query(query, parameters)
         return results
+
+    def recommend_by_rating(self):
+        query = """
+        MATCH (u:User)-[:WROTE]->(r:Review)-[:REVIEWED]->(m:Movie)
+        RETURN m.title AS title, AVG(toFloat(r.rating)) AS average_rating
+        ORDER BY average_rating DESC
+        """
+        results = self.db.execute_query(query)
+        
+        if not results:
+            return "Nenhum filme com avaliações encontrado."
+        
+        return [f"Título: {record['title']}, Nota: {record['average_rating']:.2f}" for record in results]

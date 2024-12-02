@@ -30,7 +30,8 @@ class CLI:
             print("13. Ler Avaliação")
             print("14. Atualizar Avaliação")
             print("15. Deletar Avaliação")
-            print("16. Sair")
+            print("16. Recomendar Filmes por Nota")
+            print("17. Sair")
             choice = input("Escolha uma opção: ")
 
             if choice == "1":
@@ -161,6 +162,15 @@ class CLI:
                 print("Avaliação deletada com sucesso!")
 
             elif choice == "16":
+                result = self.recommendation_system.recommend_by_rating()
+                if isinstance(result, list):
+                    for recommendation in result:
+                        print(recommendation)
+                else:
+                    print(result)
+
+
+            elif choice == "17":
                 self.movie_crud.close()
                 self.recommendation_system.close()
                 self.user_crud.close()
